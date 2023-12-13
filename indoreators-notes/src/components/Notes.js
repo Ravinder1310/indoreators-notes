@@ -1,19 +1,116 @@
-import { Box, Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import Navbar from './Navbar'
+import { useEffect, useState } from 'react';
+import { useToast, Box, Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import axios from 'axios';
+import Navbar from './Navbar';
+import NotesCard from './NotesCard';
 
 const Notes = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+  const [data, setData] = useState([]);
 
-    const [data,setData] = useState({});
-    const [title,setTitle] = useState("");
-    const [description,setDescription] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const { isOpen, onOpen, onClose } = useDisclosure()
+  const handleCreate = async () => {
+    const dataToSubmit = {
+      title,
+      description,
+    };
+
+    try {
+      if (title.trim() !== '' && description.trim() !== '') {
+        setLoading(true);
+        await axios.post('https://elegant-underwear-tick.cyclic.app/api/v1/notes/create-notes', dataToSubmit);
+
+        setLoading(false);
+        setTitle('');
+        setDescription('');
+
+        toast({
+          title: 'Notes created Successfully.',
+          description: "We've created your notes for you.",
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+        });
+
+        getData(); // Refresh data after creation
+      } else {
+        toast({
+          title: 'Please fill in both title and description.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: 'Error creating note.',
+        description: error.message || 'Something went wrong!',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+
+      setLoading(false);
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const res = await axios.get('https://elegant-underwear-tick.cyclic.app/api/v1/notes/get-notes');
+      setData(res.data.notes);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: 'Error fetching notes.',
+        description: error.message || 'Something went wrong while fetching notes!',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`https://elegant-underwear-tick.cyclic.app/api/v1/notes/delete-notes/${id}`);
+
+      toast({
+        title: 'Note Deleted',
+        description: 'The note has been successfully deleted.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      getData(); // Refresh data after deletion
+    } catch (error) {
+      console.log(error);
+
+      toast({
+        title: 'Error',
+        description: 'An error occurred while deleting the note.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
-    <Box bgColor={'#ffe6d5'}>
-        <Navbar/>
-        <Button onClick={onOpen} mt={'40px'} bgColor={'blue'} color={'white'} _hover={{bgColor:"black",color:"white"}}>Create a Note</Button>
+    <Box bgColor="#ffe6d5">
+      <Navbar />
+      <Button onClick={onOpen} mt="40px" bgColor="blue" color="white" _hover={{ bgColor: "black", color: "white" }}>
+        Create a Note
+      </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -21,21 +118,27 @@ const Notes = () => {
           <ModalHeader>Create Note</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <Box textAlign="center" mt="20px" mb="30px">
+              <Input placeholder="Enter a title" w="80%" border="1px solid black" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input placeholder="Enter a description" w="80%" border="1px solid black" mt="30px" value={description} onChange={(e) => setDescription(e.target.value)} />
+            </Box>
           </ModalBody>
-          <Box textAlign={"center"} mt={'20px'} mb={'30px'}>
-             <Input placeholder='Enter a title' w={'80%'} border={"1px solid black"}/>
-             <Input placeholder='Enter a description' w={'80%'} border={"1px solid black"} mt={'30px'}/>
-          </Box>
-             
+
           <ModalFooter>
-            <Button colorScheme='blue' mr={3}>
-              Create
+            <Button mr={3} onClick={handleCreate}>
+              {loading ? "Creating...." : "Create"}
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>
-  )
-}
 
-export default Notes
+      <Box>
+        {data.map((el) => (
+          <NotesCard el={el} id={el._id} key={el._id} handleDelete={handleDelete} />
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
+export default Notes;
