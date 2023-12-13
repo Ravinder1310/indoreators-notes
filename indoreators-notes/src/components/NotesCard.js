@@ -7,17 +7,18 @@ const NotesCard = ({ el, id, handleDelete }) => {
   const deleteNote = async () => {
     try {
       await axios.delete(`https://elegant-underwear-tick.cyclic.app/api/v1/notes/delete-notes/${id}`);
-      handleDelete(id); // Trigger the handleDelete function from the parent component after successful deletion
+      handleDelete(id); 
     } catch (error) {
       console.log(error);
     }
   };
 
+
   return (
-    <Box key={id} bg="white" p="20px" boxShadow="md" mb="10px">
-      <Text fontWeight="bold">{el.title}</Text>
-      <Text>{el.description}</Text>
-      <DeleteIcon onClick={deleteNote} cursor="pointer" color="red.500" />
+    <Box key={id} bgColor={"#a8e8fa"} borderRadius={"10px"} padding={'100px 20px'} p="20px" boxShadow="md" mb="10px">
+      <Text fontWeight="bold" fontSize={'25px'}>{`${el.title.substring(0, 30)}...`}</Text>
+      <Text mt={'10px'} fontSize={'20px'}>{`${el.description.substring(0, 70)}...`}</Text>
+      <DeleteIcon onClick={deleteNote} cursor="pointer" mt={'20px'} color="red.500" />
     </Box>
   );
 };
