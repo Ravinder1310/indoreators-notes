@@ -13,6 +13,7 @@ import {
   ModalOverlay,
   useDisclosure,
   Text,
+  Flex,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Navbar from "./Navbar";
@@ -175,22 +176,24 @@ const Notes = () => {
       </Modal>
 
       {data.length > 0 ? (
-        <Box
-        display="grid"
-        gridTemplateColumns="repeat(4, 1fr)"
-        padding="20px 40px"
-        gap="20px"
-        mt="40px"
-        >
-          {data.map((el) => (
+        <Flex
+        margin="auto"
+        flexWrap="wrap"
+        gap={5}
+        padding={'20px 40px'}
+        mt={'20px'}
+      >
+        {data.map((el) => (
+          <Box key={el._id}> {/* Adjust the maximum width of the card */}
             <NotesCard
               el={el}
               id={el._id}
               key={el._id}
               handleDelete={handleDelete}
             />
-          ))}
-        </Box>
+          </Box>
+        ))}
+      </Flex>
       ) : (
         <Text
           w={"50%"}

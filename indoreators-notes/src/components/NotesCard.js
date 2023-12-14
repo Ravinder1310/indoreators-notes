@@ -15,11 +15,17 @@ const NotesCard = ({ el, id, handleDelete }) => {
 
 
   return (
-    <Box key={id} bgColor={"#a8e8fa"} borderRadius={"10px"} padding={'100px 20px'} p="20px" boxShadow="md" mb="10px">
-      <Text fontWeight="bold" fontSize={'25px'}>{`${el.title.substring(0, 30)}...`}</Text>
-      <Text mt={'10px'} fontSize={'20px'}>{`${el.description.substring(0, 70)}...`}</Text>
-      <DeleteIcon onClick={deleteNote} cursor="pointer" mt={'20px'} color="red.500" />
-    </Box>
+    <Box
+    bgColor="#a8e8fa"
+    borderRadius="10px"
+    padding="20px" // Adjusted padding for the card
+    boxShadow="md"
+    mb="10px"
+  >
+    <Text fontWeight="bold" fontSize="20px" mb="10px">{`${el.title.substring(0, 20)}...`}</Text> {/* Adjusted font size and length */}
+    <Text fontSize="16px">{`${el.description.substring(0, 50)}...`}</Text> {/* Adjusted font size and length */}
+    <DeleteIcon onClick={deleteNote} cursor="pointer" mt="20px" color="red.500" />
+  </Box>
   );
 };
 
